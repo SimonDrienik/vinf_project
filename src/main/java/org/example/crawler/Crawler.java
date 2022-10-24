@@ -1,8 +1,11 @@
 package org.example.crawler;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 
+import org.checkerframework.checker.units.qual.A;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -15,6 +18,7 @@ import java.util.*;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.regex.Pattern;
 
 
 public class Crawler {
@@ -62,6 +66,28 @@ public class Crawler {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void loadUrls(){
+        List<String> listOfUrls;
+        String[] arr = null;
+        try {
+            Path filePath = Path.of("/Users/simondrienik/Documents/GitHub/vinf_project/urls.txt");
+            String content = Files.readString(filePath);
+            content = content.substring(1, content.length() - 1);
+            Pattern ptr = Pattern.compile(",");
+            arr = ptr.split(content);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (int i = 0; i < arr.length; i++) {
+            Downloader downloader = new Downloader();
+            String url = arr[i].substring(1, arr[i].length() - 1);
+            downloader.downloadContent(url);
+        }
+
     }
 
     public HashSet<String> getUrls() {
