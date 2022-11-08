@@ -18,31 +18,30 @@ public class Downloader {
     }
 
     public void downloadContent(String url){
+        if (url.startsWith("https://en.wikipedia.org/wiki/")) {
+            try {
+                String suburl = url.substring(30);
+                File file = new File("src/main/resources/contents/" + suburl + ".html");
+                file.createNewFile();
+                String[] schemes = {"https"};
+                UrlValidator urlValidator = new UrlValidator(schemes);
+                if (urlValidator.isValid(url)) {
 
-        try {
-            String name = RandomName.getAlphaNumericString(20);
-            File file = new File("/Users/simondrienik/Documents/GitHub/vinf_project/contents/"+name+".html");
-            file.createNewFile();
-            String[] schemes = {"http","https"};
-            UrlValidator urlValidator = new UrlValidator(schemes);
-            if (urlValidator.isValid(url))
-           {
+                    Connection.Response response = Jsoup.connect(url).execute();
+                    String html = response.body();
 
-                Connection.Response response = Jsoup.connect(url).execute();
-                String html = response.body();
+                    BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/contents/" + suburl + ".html"));
+                    writer.write(html);
+                    writer.close();
 
-                BufferedWriter writer = new BufferedWriter(new FileWriter("/Users/simondrienik/Documents/GitHub/vinf_project/contents/" + name + ".html"));
-                writer.write(html);
-                writer.close();
+                    //Indexer indexer = new Indexer("src/main/resources/contents/"+suburl+".html", url);
+                    //indexer.createIndex("src/main/resources/contents/"+suburl+".html");
 
-                Indexer indexer = new Indexer("/Users/simondrienik/Documents/GitHub/vinf_project/contents/" + name + ".html", url);
-                indexer.createIndex("/Users/simondrienik/Documents/GitHub/vinf_project/contents/" + name + ".html");
+                }
 
+            } catch (IOException e) {
+                System.out.println("Download error: " + e.getMessage());
             }
-
-        } catch (IOException e) {
-            System.out.println("Download error: " + e.getMessage());
         }
-
     }
 }

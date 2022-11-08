@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.regex.Pattern;
 
+import static com.google.common.net.InternetDomainName.isValid;
+
 
 public class Crawler {
 
@@ -36,23 +38,25 @@ public class Crawler {
                 Document document = Jsoup.connect(URL).get();
                 Elements pageURLs = document.select("a[href]");
                 depth++;
-                urls.add(URL);
+                if (URL.startsWith("https://en.wikipedia.org/wiki/"))
+                    urls.add(URL);
                 for (Element page : pageURLs) {
                     getURLsFromPage(page.attr("abs:href"), depth);
                 }
 
             } catch (IOException e) {
-                System.out.println("404 not found\n");
+
             }
         }
     }
 
     public void safeURLs(HashSet<String> urls) throws IOException {
+        System.out.println("saving urls..");
         ObjectMapper mapper = new ObjectMapper();
          FileWriter fw = null;
         String jsonStr = mapper.writeValueAsString(urls);
         try {
-            fw = new FileWriter("/Users/simondrienik/Documents/GitHub/vinf_project/urls.txt");
+            fw = new FileWriter("src/main/resources/urls/urls.json");
             fw.write(jsonStr);
         }
         catch (IOException e) {
@@ -68,11 +72,11 @@ public class Crawler {
         }
     }
 
-    public void loadUrls(){
+    public void loadUrls() throws IOException {
         List<String> listOfUrls;
         String[] arr = null;
         try {
-            Path filePath = Path.of("/Users/simondrienik/Documents/GitHub/vinf_project/urls.txt");
+            Path filePath = Path.of("src/main/resources/urls/urls.json");
             String content = Files.readString(filePath);
             content = content.substring(1, content.length() - 1);
             Pattern ptr = Pattern.compile(",");
@@ -82,11 +86,26 @@ public class Crawler {
             throw new RuntimeException(e);
         }
 
+        /*System.out.println("dowloading content..");
         for (int i = 0; i < arr.length; i++) {
             Downloader downloader = new Downloader();
             String url = arr[i].substring(1, arr[i].length() - 1);
             downloader.downloadContent(url);
+        }*/
+
+        File dir = new File("src/main/resources/contents/");
+        File[] directoryListing = dir.listFiles();
+        Indexer indexer = new Indexer();
+        System.out.println("indexing..");
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+                String name = child.getName();
+                indexer.createIndex("src/main/resources/contents/"+name, "https://en.wikipedia.org/wiki/"+name);
+            }
+        } else {
+            System.out.println("something went wrong.");
         }
+        indexer.close();
 
     }
 
