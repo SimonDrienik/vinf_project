@@ -31,14 +31,14 @@ public class Main {
             input = reader.readLine();
 
             if (Objects.equals(input, "crawler")){
-                /* Crawler crawler = new Crawler();
+                Crawler crawler = new Crawler();
                 System.out.println("crawling..");
-                crawler.getURLsFromPage("https://en.wikipedia.org/wiki/ESET", 0);
+                crawler.getURLsFromPage("https://en.wikipedia.org/wiki/Slovakia", 0);
                 try {
                     new Crawler().safeURLs(crawler.getUrls());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
-                }*/
+                }
 
                 Crawler crawler2 = new Crawler();
                 crawler2.loadUrls();

@@ -86,12 +86,12 @@ public class Crawler {
             throw new RuntimeException(e);
         }
 
-        /*System.out.println("dowloading content..");
+        System.out.println("dowloading content..");
         for (int i = 0; i < arr.length; i++) {
             Downloader downloader = new Downloader();
             String url = arr[i].substring(1, arr[i].length() - 1);
             downloader.downloadContent(url);
-        }*/
+        }
 
         File dir = new File("src/main/resources/contents/");
         File[] directoryListing = dir.listFiles();
