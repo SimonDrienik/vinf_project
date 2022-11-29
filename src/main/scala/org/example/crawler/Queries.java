@@ -31,10 +31,11 @@ public class Queries {
         Directory indexDirectory = open(new File("src/main/resources/indexes").toPath());
         StandardAnalyzer analyzer = new StandardAnalyzer();
         Query query = new QueryParser("category", analyzer).parse(queryString);
-        System.out.println(queryString);
         IndexReader indexReader = DirectoryReader.open(indexDirectory);
         IndexSearcher searcher = new IndexSearcher(indexReader);
         TopDocs topDocs = searcher.search(query, 200);
+
+        System.out.println("Total number of founded documents: " + topDocs.totalHits );
         List<Document> documents = new ArrayList<>();
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             documents.add(searcher.doc(scoreDoc.doc));

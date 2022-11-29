@@ -5,6 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.JavaSparkContext$;
 import org.checkerframework.checker.units.qual.A;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
@@ -38,7 +42,7 @@ public class Crawler {
                 Document document = Jsoup.connect(URL).get();
                 Elements pageURLs = document.select("a[href]");
                 depth++;
-                if (URL.startsWith("https://en.wikipedia.org/wiki/"))
+                if (URL.startsWith("https://en.wikipedia.org/wiki/") && !(URL.contains("#cite")))
                     urls.add(URL);
                 for (Element page : pageURLs) {
                     getURLsFromPage(page.attr("abs:href"), depth);
@@ -80,33 +84,30 @@ public class Crawler {
             String content = Files.readString(filePath);
             content = content.substring(1, content.length() - 1);
             Pattern ptr = Pattern.compile(",");
-            arr = ptr.split(content);
+            listOfUrls = List.of(ptr.split(content));
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        System.out.println("dowloading content..");
-        for (int i = 0; i < arr.length; i++) {
-            Downloader downloader = new Downloader();
-            String url = arr[i].substring(1, arr[i].length() - 1);
-            downloader.downloadContent(url);
-        }
+        SparkConf sparkConf = new SparkConf().setAppName("Download web sites of RDD")
+                .setMaster("local[3]").set("spark.executor.memory","2g");
+        // start a spark context
+        JavaRDD<String> rdd;
+        try (JavaSparkContext sc = new JavaSparkContext(sparkConf)) {
 
-        File dir = new File("src/main/resources/contents/");
-        File[] directoryListing = dir.listFiles();
-        Indexer indexer = new Indexer();
-        System.out.println("indexing..");
-        if (directoryListing != null) {
-            for (File child : directoryListing) {
-                String name = child.getName();
-                indexer.createIndex("src/main/resources/contents/"+name, "https://en.wikipedia.org/wiki/"+name);
-            }
-        } else {
-            System.out.println("something went wrong.");
-        }
-        indexer.close();
+            System.out.println("Number of partitions : " + 3);
+            System.out.println("dowloading content..");
 
+            long start = System.currentTimeMillis();
+            rdd = sc.parallelize(listOfUrls, 3);
+            rdd.foreach(item -> {
+                Downloader downloader = new Downloader();
+                downloader.downloadContent(item);
+            });
+            long end = System.currentTimeMillis();
+            System.out.println("Completed download of data in sec: " + (end - start) / 1000);
+        }
     }
 
     public HashSet<String> getUrls() {

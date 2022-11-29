@@ -17,8 +17,9 @@ public class Downloader {
 
     }
 
-    public void downloadContent(String url){
-        if (url.startsWith("https://en.wikipedia.org/wiki/")) {
+    public void downloadContent(String url1){
+        String url = url1.substring(1, url1.length() - 1);
+        if (url.startsWith("https://en.wikipedia.org/wiki/") && !(url.contains("#cite"))) {
             try {
                 String suburl = url.substring(30);
                 File file = new File("src/main/resources/contents/" + suburl + ".html");
