@@ -29,21 +29,24 @@ import static com.google.common.net.InternetDomainName.isValid;
 
 public class Crawler {
 
-    private static final int MAX_DEPTH = 2;
+    private static final int MAX_DEPTH = 999999999;
     private HashSet<String> urls;
 
     public Crawler(){
         urls = new HashSet<>();
     }
-
+    int counter = 0;
     public void getURLsFromPage(String URL, int depth) {
-        if (!(urls.contains(URL)) && depth < MAX_DEPTH){
+        if (!(urls.contains(URL))){
             try {
                 Document document = Jsoup.connect(URL).get();
                 Elements pageURLs = document.select("a[href]");
                 depth++;
-                if (URL.startsWith("https://en.wikipedia.org/wiki/") && !(URL.contains("#cite")))
+                if (URL.startsWith("https://en.wikipedia.org/wiki/") && !(URL.contains("#cite"))) {
                     urls.add(URL);
+                    counter++;
+                    System.out.println("page count:" + counter);
+                }
                 for (Element page : pageURLs) {
                     getURLsFromPage(page.attr("abs:href"), depth);
                 }
