@@ -27,6 +27,13 @@ public class Queries {
         this.queryString = query;
     }
 
+    /**
+     *
+     * @return list of queried index documents... <p>
+     * @throws IOException <p>
+     * There is applied Lucene searchQuery library to query index documents based on requested category... <p>
+     * topDocs represents queried index documents and only 200 houndred are printed and with topDocs.totalHits is printed count of all queried documents...
+     */
     public List<Document> searchCategory() throws ParseException, IOException {
         Directory indexDirectory = open(new File("src/main/resources/indexes").toPath());
         StandardAnalyzer analyzer = new StandardAnalyzer();

@@ -117,10 +117,21 @@ public class Indexer {
         patterns.add(patternLocalityDisctrict);
     }
 
+    /**
+     * @throws IOException
+     * method for closing indexer...
+     */
     public void close() throws IOException {
         writer.close();
     }
 
+    /**
+     * @param file is content file with html source...<p>
+     * @return created index document...<p>
+     * @throws IOException <p>
+     * creating fields for index document... <p>
+     * runs returnCategory() method that returns vategory of file with regex patterns applied on file...
+     */
     private Document getDocument(File file) throws IOException {
 
         String categoryValue = returnCategory();
@@ -139,6 +150,13 @@ public class Indexer {
         return document;
     }
 
+    /**
+     * @return category of file...<p>
+     * @throws IOException <p>
+     * going trough every pattern in pattern list that contains patterns from this class and in findRegex(pattern) is this pattern applied to every line in html file and ...<p>
+     * if there is a match: in if else conditions is discovering which pattern from list matches with that line from html and after that is proper category or type returned...
+     *
+     */
     private String returnCategory() throws IOException {
 
         String type = "other";
@@ -199,6 +217,12 @@ public class Indexer {
         return type;
     }
 
+    /**
+     *
+     * @param pattern represents each pattern from pattern list defined in this class...<p>
+     * @return boolean if pattern was found in html file...<p>
+     * applying pattern to every line of source code html file...
+     */
     private Boolean findRegex(Pattern pattern){
 
         final Boolean[] match = new Boolean[1];
@@ -215,11 +239,25 @@ public class Indexer {
         return match[0];
     }
 
+
+    /**
+     *
+     * @param file represents html source file to be indexed...<p>
+     * @throws IOException <p>
+     * creating index document of html source file...
+     */
     private void indexFile(File file) throws IOException {
         Document document = getDocument(file);
         writer.addDocument(document);
     }
 
+
+    /**
+     *
+     * @param filepath is path to file to be indexed...<p>
+     * @param url is url of that file. url is in index field...<p>
+     * creating index of file with method indexFile(f) if file exists and is readable...
+     */
     public void createIndex(String filepath,String url) throws IOException {
         this.url = url;
         File f = new File(filepath);
